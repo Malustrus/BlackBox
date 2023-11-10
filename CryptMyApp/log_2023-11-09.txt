@@ -1,0 +1,7 @@
+2023-11-09 22:08:52	==> getExecutableCallerName()
+2023-11-09 22:08:52	ExecutableCallerName = C:\Users\cleme\source\repos\CryptMyApp\x64\Debug\CryptMyApp.exe
+2023-11-09 22:08:52	<== getExecutableCallerName()
+2023-11-09 22:14:40	==> getExecutableCallerName()
+2023-11-09 22:14:40	Executable caller full name = C:\Users\cleme\source\repos\CryptMyApp\x64\Debug\CryptMyApp.exe
+2023-11-09 22:14:40	Executable caller name = CryptMyApp.exe
+2023-11-09 22:14:40	<== getExecutableCallerName()
