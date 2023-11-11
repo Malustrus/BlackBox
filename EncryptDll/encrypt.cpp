@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream> 
 #include <fstream>
-#include "7zpp.h"
+#include <bit7z/bitfilecompressor.hpp>
 
 using namespace std;
 
@@ -43,8 +43,6 @@ void Logger(string logMsg) {
 /// <returns></returns>
 string getExecutableCallerName()
 {   
-    SevenZip::SevenZipLibrary lib;
-    lib.Load();
     Logger("==> getExecutableCallerName()");
     TCHAR szExeFileName[MAX_PATH];
 
@@ -61,7 +59,26 @@ string getExecutableCallerName()
 
 void EncryptFiles() 
 {
-
+    try
+    {
+        Logger("test1.1");
+        bit7z::Bit7zLibrary lib{ "7z.dll" };
+        Logger("test1.2");
+        bit7z::BitFileCompressor compressor{ lib, bit7z::BitFormat::Zip };
+        Logger("test1.3");
+        std::vector< std::string > files = { "D:\\OneDrive\\Documents\\1_Projet\\Chiffrement\\test.txt" };
+        Logger("test2");
+        compressor.compress(files, "output_archive.zip");
+        compressor.setPassword(getExecutableCallerName(),true);
+        compressor.compressFiles(files, "protected_archive.zip");
+        compressor.setUpdateMode(bit7z::UpdateMode::Append);
+        compressor.compressFiles(files, "existing_archive.zip");
+        Logger("test4");
+    }
+    catch (const bit7z::BitException& ex)
+    {
+        Logger("erreur");
+    }
 }
 
 BYTE* DecryptFiles() 
@@ -74,7 +91,6 @@ BYTE* DecryptFiles()
 /// </summary>
 extern "C" __declspec(dllexport) void test()
 {
-    getExecutableCallerName();
+    EncryptFiles();
 }
-
 
