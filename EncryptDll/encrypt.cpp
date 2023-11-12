@@ -1,4 +1,10 @@
 #include "pch.h"
+#include <cryptlib.h>
+#include <shake.h>
+#include <channels.h>
+#include <filters.h>
+#include <files.h>
+#include <hex.h>
 #include <string>
 #include <iostream> 
 #include <fstream>
@@ -57,6 +63,23 @@ string getExecutableCallerName()
     return fullName;
 }
 
+string getHashesFile()
+{
+    std::string s1;
+    CryptoPP::SHAKE256 hash;
+
+    CryptoPP::HashFilter f1(hash, new CryptoPP::HexEncoder(new CryptoPP::StringSink(s1)));
+
+    CryptoPP::ChannelSwitch cs;
+    cs.AddDefaultRoute(f1);
+
+    //CryptoPP::FileSource(getExecutableCallerName().c_str(), true /*pumpAll*/, new CryptoPP::Redirector(cs));
+
+    Logger("mot de passe : " + s1);
+
+    return s1;
+}
+
 void EncryptFiles() 
 {
     try
@@ -69,7 +92,7 @@ void EncryptFiles()
         std::vector< std::string > files = { "D:\\OneDrive\\Documents\\1_Projet\\Chiffrement\\test.txt" };
         Logger("test2");
         compressor.compress(files, "output_archive.zip");
-        compressor.setPassword(getExecutableCallerName(),true);
+        compressor.setPassword(getHashesFile(), true);
         compressor.compressFiles(files, "protected_archive.zip");
         compressor.setUpdateMode(bit7z::UpdateMode::Append);
         compressor.compressFiles(files, "existing_archive.zip");
@@ -80,6 +103,8 @@ void EncryptFiles()
         Logger("erreur");
     }
 }
+
+
 
 BYTE* DecryptFiles() 
 {
