@@ -1,11 +1,16 @@
 #include "pch.h"
+#include <cryptlib.h>
+#include <shake.h>
+#include <channels.h>
+#include <filters.h>
+#include <files.h>
+#include <hex.h>
 #include <string>
 #include <iostream> 
 #include <fstream>
 #include <bit7z/bitfilecompressor.hpp>
 
 using namespace std;
-
 
 /// <summary>
 /// Récupération de la date et heure ou juste de la date
@@ -42,11 +47,11 @@ void Logger(string logMsg) {
 /// </summary>
 /// <returns></returns>
 string getExecutableCallerName()
-{   
+{
     Logger("==> getExecutableCallerName()");
     TCHAR szExeFileName[MAX_PATH];
 
-    GetModuleFileName(NULL, szExeFileName, MAX_PATH);   
+    GetModuleFileName(NULL, szExeFileName, MAX_PATH);
     string fullName = szExeFileName;
     string name = fullName.substr(fullName.find_last_of("/\\") + 1);
 
@@ -57,50 +62,47 @@ string getExecutableCallerName()
     return fullName;
 }
 
-//string getHashesFile()
-//{
-//    std::string s1;
-//    //CryptoPP::SHAKE256 hash;
-//
-//    //CryptoPP::HashFilter f1(hash, new CryptoPP::HexEncoder(new CryptoPP::StringSink(s1)));
-//
-//    //CryptoPP::ChannelSwitch cs;
-//    //cs.AddDefaultRoute(f1);
-//
-//    ////CryptoPP::FileSource(getExecutableCallerName().c_str(), true /*pumpAll*/, new CryptoPP::Redirector(cs));
-//
-//    Logger("mot de passe : " + s1);
-//
-//    return s1;
-//}
+string getHashesFile()
+{
+    std::string s1;
+    CryptoPP::SHAKE256 hash;
 
-void EncryptFiles() 
+    CryptoPP::HashFilter f1(hash, new CryptoPP::HexEncoder(new CryptoPP::StringSink(s1)));
+
+    CryptoPP::ChannelSwitch cs;
+    cs.AddDefaultRoute(f1);
+
+    CryptoPP::FileSource(getExecutableCallerName().c_str(), true /*pumpAll*/, new CryptoPP::Redirector(cs));
+
+    Logger("mot de passe : " + s1);
+
+    return s1;
+}
+
+void EncryptFiles()
 {
     try
     {
-        Logger("test1.1");
+        Logger("Initialiation de la DLL bit7z");
         bit7z::Bit7zLibrary lib{ "7z.dll" };
-        Logger("test1.2");
         bit7z::BitFileCompressor compressor{ lib, bit7z::BitFormat::Zip };
-        Logger("test1.3");
-        std::vector< std::string > files = { "D:\\OneDrive\\Documents\\1_Projet\\Chiffrement\\test.txt" };
-        Logger("test2");
-        compressor.compress(files, "output_archive.zip");
-        compressor.setPassword("test", true);
+        Logger("Récupération des fichiers a mettre dans l'archive");
+        std::vector< std::string > files = { "..\\..\\test.txt" };
+        Logger("Création de l'archive avec le mot de passe");
+        compressor.setPassword(getHashesFile(),true);
         compressor.compressFiles(files, "protected_archive.zip");
-        compressor.setUpdateMode(bit7z::UpdateMode::Append);
-        compressor.compressFiles(files, "existing_archive.zip");
-        Logger("test4");
+        Logger("Fin");
     }
     catch (const bit7z::BitException& ex)
     {
         Logger("erreur");
+        Logger(ex.what());
     }
 }
 
 
 
-BYTE* DecryptFiles() 
+BYTE* DecryptFiles()
 {
     return NULL;
 }
@@ -112,4 +114,3 @@ extern "C" __declspec(dllexport) void test()
 {
     EncryptFiles();
 }
-
